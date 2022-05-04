@@ -234,7 +234,10 @@ tasks.named("composeUp").configure {
 
 void addBuildDockerContextTask(Architecture architecture, DockerBase base) {
   String configDirectory = base == DockerBase.IRON_BANK ? 'scripts' : 'config'
-  String arch = architecture == Architecture.AARCH64 ? '-aarch64' : ''
+  String arch = architecture == Architecture.AARCH64 ? '-aarch64' :
+    (architecture ==  Architecture.LOONGARCH64 ? '-loongarch64':'')
+
+  print("xwx===="+arch+"\n")
 
   final TaskProvider<Tar> buildDockerContextTask =
     tasks.register(taskName('build', architecture, base, 'DockerContext'), Tar) {
@@ -276,6 +279,7 @@ void addBuildDockerContextTask(Architecture architecture, DockerBase base) {
 }
 
 void addTransformDockerContextTask(Architecture architecture, DockerBase base) {
+
   tasks.register(taskName("transform", architecture, base, "DockerContext"), Sync) {
     TaskProvider<Tar> buildContextTask = tasks.named(taskName("build", architecture, base, "DockerContext"))
     dependsOn(buildContextTask)
@@ -335,6 +339,8 @@ private static List<String> generateTags(DockerBase base) {
 }
 
 void addBuildDockerImageTask(Architecture architecture, DockerBase base) {
+
+
   final TaskProvider<DockerBuildTask> buildDockerImageTask =
     tasks.register(taskName("build", architecture, base, "DockerImage"), DockerBuildTask) {
 
@@ -420,6 +426,10 @@ void addBuildEssDockerImageTask(Architecture architecture) {
 }
 
 for (final Architecture architecture : Architecture.values()) {
+  if(architecture !=  Architecture.LOONGARCH64){
+    continue ;
+  }
+
   for (final DockerBase base : DockerBase.values()) {
     if (base == DockerBase.CLOUD_ESS) {
       continue
